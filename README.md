@@ -4,7 +4,7 @@
 > wowtjdwo@gmail.com
 
 이영우 (노예) 
-> asdf@asdf.com 
+> dbsgh013@gmail.com
 
 장세영 (노예) 
 > seyoung0916@naver.com
