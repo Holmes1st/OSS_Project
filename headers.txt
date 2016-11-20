@@ -1,0 +1,9 @@
+linux/fs.h -> register_chrdev(), unregister_chrdev() 쓸 때 사용
+linux/types.h -> 자료형이 정의되어 있음
+linux/module.h -> module_init(), module_exit() 쓸 때 사용
+linux/keyboard.h -> register_keyboard_notifier(),unregister_keyboard_notifier() 함수를 이용할 때 사용
+linux/input.h -> 입력에 관련된 함수를 이용할 때 사용하는 것으로 보임
+linux/kernel.h -> printk() 함수를 이용할 때 사용
+asm/uaccess.h -> copy_to_user() 함수를 이용할 때 사용
+klogger.h -> 사용자 정의 헤더파일
+string.h -> memset()
