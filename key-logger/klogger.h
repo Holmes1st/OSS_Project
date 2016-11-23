@@ -20,6 +20,12 @@ const char ch_table[] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', 
 		   'X', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', 'X',
 		   'X', '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'};
 
+const char shifted_ch_table[] = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\r', //const를 이용하여 배열을 전부 상수화시킴.
+		   '\t', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n',
+		   'X', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '|'', 'X',
+		   'X', '\\', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?'
+
+}
 inline char get_ascii(int code) { //inline함수로 컴파일시 치환하는 아스키코드값을 얻는 함수 정의
 	if((code < FIRST_CD || code > LAST_CD) && code != KEY_SPACE) return 'X'; //만약에 범위 외의 문자라면 X를 반환
 	else if(code == KEY_SPACE) return ' '; //스페이스라면 공백을 반환
