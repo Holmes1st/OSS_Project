@@ -2,8 +2,12 @@
 
 #include <linux/kernel.h>
 #include <asm/uaccess.h>
+#include <semaplhore.h>
 
 #include "klogger.h"
+
+struct semaphore s;
+static int shiftPressed = 0;
 
 int klg_init(void) {
 	int result;
