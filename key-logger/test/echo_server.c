@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     memset(send_data, 0x00, BUFSIZE);
     puts("[INIT] Complete");
 
+    /* setting socket from here*/
     if ((server_sock = socket(PF_INET, SOCK_STREAM, 0)) == -1)
     {
         perror("[SOCK ERROR] ");
@@ -90,6 +91,8 @@ int main(int argc, char *argv[])
         perror("[ACCEPT ERROR] ");
         return 0;
     }
+    // socket setting end
+
 
     while(1)
     {
