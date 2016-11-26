@@ -1,15 +1,16 @@
 /*
-
 @ echo server
 @ MADE by Holmes1st
 @ First modify 2016.11.24 (yyyy.mm.dd)
 
 GOAL
-    read /dev/klg every 3 seconds, and send it to peer
+    read /dev/klg every N seconds, and send it to peer
 
 UPDATES
     2016-11-26
-        trying socket communication (send_only) 
+        success socket communication (send_only)
+        TODO : accept client only argv[1]
+            ex) accept only 127.0.0.1
 
     2016-11-25
         success to read "updated" message
@@ -28,7 +29,13 @@ UPDATES
 #include <stdio.h>
 #include <errno.h>  // perror
 
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
 #include "var.h"    // cpstring, diff, struct buf_addr
+
+#define default_port    31337
+#define default_client  ("127.0.0.1")
 
 int main(int argc, char *argv[])
 {
@@ -41,7 +48,10 @@ int main(int argc, char *argv[])
 
 
     /* socket variables */
-    int sockfd;
+    int server_sock, client_sock;
+    socklen_t addr_size;
+    struct sockaddr_in server_addr;
+    struct sockaddr_in client_addr;
     
 
     /* init */
@@ -49,6 +59,37 @@ int main(int argc, char *argv[])
     memset(buf2, 0x00, BUFSIZE);
     memset(send_data, 0x00, BUFSIZE);
     puts("[INIT] Complete");
+
+    if ((server_sock = socket(PF_INET, SOCK_STREAM, 0)) == -1)
+    {
+        perror("[SOCK ERROR] ");
+        return 0;
+    }
+
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(default_port);
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if(bind(server_sock, (struct sockaddr* )&server_addr, sizeof(server_addr)) == -1)
+    {
+        perror("[BIND ERROR] ");
+        return 0;
+    }
+
+    if(listen(server_sock, 5) == -1)
+    {
+        perror("[LISTEN ERROR] ");
+        return 0;
+    }
+
+    addr_size = sizeof(client_addr);
+
+    if ((client_sock = accept(server_sock, (struct sockaddr* )&client_addr, &addr_size)) == -1)
+    {
+        perror("[ACCEPT ERROR] ");
+        return 0;
+    }
 
     while(1)
     {
@@ -80,9 +121,9 @@ int main(int argc, char *argv[])
             }
             // printf("%d\n", send_data[0]);
             puts(send_data);
-            /* TODO 
-               - send send_data to server
-            */
+            
+            // send log to client
+            write(client_sock, send_data, sendsize);
         }
         memcpy(buf1, buf2, BUFSIZE-1);
         
@@ -90,7 +131,7 @@ int main(int argc, char *argv[])
 
         // printf("%s\n",send_data);
         close(fd);
-        sleep(5);
+        sleep(3);
     }
 
 }
