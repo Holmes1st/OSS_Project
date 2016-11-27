@@ -109,6 +109,7 @@ int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param
 				bptr++;
 				*bptr = 't';
 				bptr++;
+				if (bptr == endptr) bptr = buffer;
 			}
 			else if (param->value == KEY_CAPSLOCK)  //캡스락 눌렀을 때
 			{
