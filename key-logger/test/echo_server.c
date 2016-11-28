@@ -3,11 +3,18 @@
 @ MADE by Holmes1st
 @ First modify 2016.11.24 (yyyy.mm.dd)
 
+HOW TO USE
+    ./echo_server client_ip server_port
+
 GOAL
     read /dev/klg every N seconds, and send it to peer
 
 UPDATES
+    2016-11-28
+        success to accept only special client
+
     2016-11-26
+        change name read_log.c -> echo_server.c
         success socket communication (send_only)
         TODO : accept client only argv[1]
             ex) accept only 127.0.0.1
@@ -25,8 +32,9 @@ UPDATES
 
 #include <unistd.h> // sleep, read, close
 #include <fcntl.h>  // open, O_RDONLY
-#include <string.h> // memset, memcpy
+#include <string.h> // memset, memcpy, strcpy
 #include <stdio.h>
+#include <stdlib.h> // atoi
 #include <errno.h>  // perror
 
 #include <sys/socket.h>
@@ -34,11 +42,22 @@ UPDATES
 
 #include "var.h"    // cpstring, diff, struct buf_addr
 
-#define default_port    31337
+#define default_port    ("31337")
 #define default_client  ("127.0.0.1")
 
 int main(int argc, char *argv[])
 {
+    // argv[1] == client ip
+    // argv[2] == port number
+    char client_ip[16] = "";
+    char server_port[6] = "";
+    if (!isValidIp4(argv[1]))   strcpy(client_ip, default_client);
+    else                        strcpy(client_ip, argv[1]);
+
+    if (atoi(argv[2]) < 1 || atoi(argv[2]) > 65535) strcpy(server_port, default_port);
+    else                                            strcpy(server_port, argv[2]);
+
+
     /* log file variables */
     int fd = -1;
     char buf1[BUFSIZE], buf2[BUFSIZE];
@@ -69,8 +88,8 @@ int main(int argc, char *argv[])
 
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(default_port);
-	server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    server_addr.sin_port = htons(atoi(server_port));
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if(bind(server_sock, (struct sockaddr* )&server_addr, sizeof(server_addr)) == -1)
     {
@@ -78,6 +97,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+LISTEN:
     if(listen(server_sock, 5) == -1)
     {
         perror("[LISTEN ERROR] ");
@@ -93,12 +113,21 @@ int main(int argc, char *argv[])
     }
     // socket setting end
 
+    printf("%s\n",inet_ntoa(client_addr.sin_addr));
+    if(strcmp(inet_ntoa(client_addr.sin_addr), client_ip) != 0){
+        write( client_sock, "[DECLINE] You are not allowed ip.\n", 35);
+        close( client_sock );
+        goto LISTEN;
+    }
+
 
     while(1)
     {
         if ((fd = open("/dev/klg", O_RDONLY)) == -1)
         {
             perror("[DEV] ");
+            close( server_sock );
+            close( client_sock );
             return 0;
         }
 
@@ -106,6 +135,8 @@ int main(int argc, char *argv[])
         {
             perror("[READ] ");
             close(fd);
+            close( server_sock );
+            close( client_sock );
             return 0;
         }
         // printf("%X\n", buf2[0]);
@@ -120,6 +151,8 @@ int main(int argc, char *argv[])
             {
                 printf("[COPY] String copy error\n");
                 close(fd);
+                close( server_sock );
+                close( client_sock );
                 return 0;
             }
             // printf("%d\n", send_data[0]);
