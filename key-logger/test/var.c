@@ -102,7 +102,3 @@ int isValidIp4 (char *str)
 
     return 1;
 }
-int isValidport(char * port)
-{
-
-}
