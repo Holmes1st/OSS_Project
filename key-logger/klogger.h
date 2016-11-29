@@ -5,8 +5,6 @@
 #include <linux/types.h>
 #include <linux/module.h>
 #include <linux/keyboard.h>
-// #include <linux/kd.h>//for keyboard ioctl
-// #include <asm/ioctl.h>//for caps lock
 #include <linux/input.h>
 
 #define KLG_MAJOR   60 //전처리
@@ -46,7 +44,6 @@ int klg_open(struct inode *inode, struct file *filp); //klg_open 함수 선언
 ssize_t klg_read(struct file *filp, char *buf, size_t count, loff_t *f_pos); //klg_read함수 선언
 void klg_exit(void); //klg_exit함수 선언
 int klg_init(void); //klg_init함수 선언
-// int caps_lock_status(void);
 int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* param); //kbd_notifier함수 선언
 static int start_echo(void);
 
