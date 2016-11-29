@@ -1,12 +1,22 @@
+FLAGS=-std=gnu99
+ccflags-y:=-std=gnu99 -Wno-declaration-after-statement
 ifneq ($(KERNELRELEASE),)
 obj-m := klogger.o
-else
-KERNELDIR ?= /lib/modules/$(shell uname -r)/build	# 커널 디렉토리
-PWD := $(shell pwd)
 
-modules:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules		# 커널 디렉토리에서 작업하여 결과는 현재 디렉토리에 저장
+else
+KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+PWD := $(shell pwd)
+ECHO := $(shell pwd)/test
+
+all: echo_server
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+
+echo_server: ./test/var.c ./test/echo_server.c
+	gcc -std=c99 $^ -o $@
+	ln -sf $(PWD)/$@ /tmp
+
 endif
 
 clean:
-	rm -rf *.o *~ *.ko *.mod.c Module.* *.order
+	rm -rf *.o *~ *.ko *.mod.c Module.* *.order echo_server .tmp* .*.cmd
+	rm -f /tmp/echo_server

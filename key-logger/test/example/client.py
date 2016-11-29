@@ -17,6 +17,9 @@ except Exception as e:
     print e;
     exit(1);
 
+print "[ACCESS] Success"
+print "[READING] ..."
+
 while(1):
     data = link.recv(1024)
     if data:

